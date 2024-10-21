@@ -165,6 +165,203 @@
     </style>
 </head>
 <body>
-    <!-- باقي محتوى HTML بدون تغيير -->
+    <div class="container">
+        <h1>منشئ رمز الاستجابة السريع QR code</h1>
+        
+        <div class="input-group">
+            <label for="text">أدخل النص أو الرابط:</label>
+            <input type="text" id="text" placeholder="أدخل النص أو الرابط هنا">
+        </div>
+        
+        <div class="color-inputs">
+            <div class="color-picker">
+                <label for="colorDark">لون الكود:</label>
+                <input type="color" id="colorDark" value="#000000">
+            </div>
+            <div class="color-picker">
+                <label for="colorLight">لون الخلفية:</label>
+                <input type="color" id="colorLight" value="#ffffff">
+            </div>
+        </div>
+
+        <div class="checkbox-group">
+            <label>
+                <input type="checkbox" id="transparent" onchange="updateTransparency()">
+                خلفية شفافة
+            </label>
+        </div>
+
+        <div id="status"></div>
+
+        <button class="main-button" onclick="generateQR()">إنشاء رمز QR</button>
+        
+        <div id="qrcode"></div>
+        
+        <div class="button-container">
+            <button class="action-btn" onclick="downloadQR('png')">
+                PNG حفظ بصيغة
+            </button>
+            <button class="action-btn" onclick="downloadQR('svg')">
+                SVG حفظ بصيغة
+            </button>
+            <button class="action-btn" onclick="copyToClipboard()">
+                نسخ الصورة
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function generateQR() {
+            const text = document.getElementById('text').value;
+            if (!text) {
+                showStatus('الرجاء إدخال نص أو رابط', 'error');
+                return;
+            }
+
+            try {
+                const colorDark = document.getElementById('colorDark').value;
+                const colorLight = document.getElementById('colorLight').value;
+                const transparent = document.getElementById('transparent').checked;
+
+                const qr = qrcode(0, 'M');
+                qr.addData(text);
+                qr.make();
+
+                const modules = qr.getModuleCount();
+                const targetSize = 256;
+                const cellSize = targetSize / modules;
+                const finalSize = cellSize * modules;
+
+                let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${finalSize}" height="${finalSize}" viewBox="0 0 ${modules} ${modules}" shape-rendering="crispEdges">`;
+                
+                if (!transparent) {
+                    svg += `<rect width="${modules}" height="${modules}" fill="${colorLight}"/>`;
+                }
+
+                for (let row = 0; row < modules; row++) {
+                    for (let col = 0; col < modules; col++) {
+                        if (qr.isDark(row, col)) {
+                            svg += `<rect x="${col}" y="${row}" width="1" height="1" fill="${colorDark}"/>`;
+                        }
+                    }
+                }
+                
+                svg += '</svg>';
+
+                document.getElementById('qrcode').innerHTML = svg;
+                showStatus('تم إنشاء رمز QR بنجاح', 'success');
+                
+                document.querySelector('#qrcode svg').addEventListener('click', function() {
+                    copyToClipboard();
+                });
+            } catch (error) {
+                console.error('Error generating QR code:', error);
+                showStatus('حدث خطأ في إنشاء رمز QR', 'error');
+            }
+        }
+
+        async function copyToClipboard() {
+            const svg = document.querySelector('#qrcode svg');
+            if (!svg) {
+                showStatus('الرجاء إنشاء رمز QR أولاً', 'error');
+                return;
+            }
+
+            try {
+                const svgData = new XMLSerializer().serializeToString(svg);
+                const blob = new Blob([svgData], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                
+                const img = new Image();
+                img.src = url;
+                
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = reject;
+                });
+
+                const canvas = document.createElement('canvas');
+                canvas.width = 256;
+                canvas.height = 256;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                
+                const imageBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        'image/png': imageBlob
+                    })
+                ]);
+
+                showStatus('تم نسخ الصورة بنجاح', 'success');
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Error copying QR code:', error);
+                showStatus('حدث خطأ أثناء نسخ الصورة', 'error');
+            }
+        }
+
+        function downloadQR(format) {
+            const qrcode = document.querySelector('#qrcode svg');
+            if (!qrcode) {
+                showStatus('الرجاء إنشاء رمز QR أولاً', 'error');
+                return;
+            }
+
+            try {
+                if (format === 'svg') {
+                    const svgData = new XMLSerializer().serializeToString(qrcode);
+                    const blob = new Blob([svgData], { type: 'image/svg+xml' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'qrcode.svg';
+                    link.click();
+                    URL.revokeObjectURL(url);
+                } else {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = 256;
+                    canvas.height = 256;
+
+                    const img = new Image();
+                    const svgData = new XMLSerializer().serializeToString(qrcode);
+                    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+
+                    img.onload = function() {
+                        ctx.drawImage(img, 0, 0);
+                        const link = document.createElement('a');
+                        link.href = canvas.toDataURL('image/png');
+                        link.download = 'qrcode.png';
+                        link.click();
+                    };
+                }
+                showStatus('جاري التحميل...', 'success');
+            } catch (error) {
+                console.error('Error downloading QR code:', error);
+                showStatus('حدث خطأ في تحميل الملف', 'error');
+            }
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = type;
+            status.style.display = 'block';
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+
+        function updateTransparency() {
+            const transparent = document.getElementById('transparent').checked;
+            const colorLight = document.getElementById('colorLight');
+            colorLight.disabled = transparent;
+            if (document.querySelector('#qrcode svg')) {
+                generateQR();
+            }
+        }
+    </script>
 </body>
 </html>

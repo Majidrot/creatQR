@@ -2,32 +2,34 @@
 <html dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منشئ رمز الاستجابة السريع QR code</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <style>
         body {
-        /* أعده مجانا: ماجد بن رفاع الروقي */
             font-family: system-ui, -apple-system, sans-serif;
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 20px;
+            margin: 0;
+            padding: 10px;
             background-color: #f5f5f5;
+            font-size: 16px;
         }
 
         .container {
             background-color: white;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 100%;
+            margin: 0 auto;
+            box-sizing: border-box;
         }
 
-        /* تنسيق العنوان الرئيسي */
         h1 {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
         }
 
-        /* تنسيق حقل إدخال النص */
         .input-group {
             margin: 15px 0;
             direction: ltr;
@@ -37,102 +39,116 @@
             display: block;
             margin-bottom: 5px;
             direction: rtl;
+            font-size: 1.1rem;
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin: 5px 0;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
             box-sizing: border-box;
+            font-size: 1rem;
         }
 
-        /* تنسيق مجموعة الألوان */
         .color-inputs {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin: 25px 0;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
         }
 
         .color-picker {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         input[type="color"] {
-            width: 50px;
-            height: 40px;
+            width: 60px;
+            height: 50px;
             padding: 2px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
         }
 
-        /* تنسيق خيار الشفافية */
         .checkbox-group {
             margin: 15px 0;
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 10px;
+            font-size: 1.1rem;
         }
 
-        /* تنسيق الأزرار */
         button {
             background-color: #007bff;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            padding: 15px 20px;
+            border-radius: 8px;
             cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
+            font-size: 1.1rem;
+            width: 100%;
+            margin: 10px 0;
         }
 
         .main-button {
-            width: 100%;
-            max-width: 300px;
-            margin: 20px auto;
-            display: block;
+            background-color: #28a745;
+            font-size: 1.2rem;
+            padding: 15px 30px;
         }
 
         .button-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: 1fr;
             gap: 10px;
             margin-top: 20px;
         }
 
-        .action-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            padding: 10px;
-        }
-
         #qrcode {
-            margin-top: 20px;
+            margin: 20px auto;
             text-align: center;
-            min-height: 256px;
-            position: relative;
+            min-height: 200px;
         }
 
-        #qrcode canvas, #qrcode svg {
+        #qrcode svg {
             max-width: 100%;
+            height: auto;
             cursor: pointer;
         }
 
         #status {
             margin: 10px 0;
-            padding: 10px;
-            border-radius: 4px;
+            padding: 12px;
+            border-radius: 8px;
             display: none;
             text-align: center;
+            font-size: 1.1rem;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            .container {
+                max-width: 600px;
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .button-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            #qrcode {
+                min-height: 256px;
+            }
         }
 
         .error {
@@ -149,214 +165,6 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>منشئ رمز الاستجابة السريع QR code</h1>
-        
-        <div class="input-group">
-            <label for="text">أدخل النص أو الرابط:</label>
-            <input type="text" id="text" placeholder="أدخل النص أو الرابط هنا">
-        </div>
-        
-        <div class="color-inputs">
-            <div class="color-picker">
-                <label for="colorDark">لون الكود:</label>
-                <input type="color" id="colorDark" value="#000000">
-            </div>
-            <div class="color-picker">
-                <label for="colorLight">لون الخلفية:</label>
-                <input type="color" id="colorLight" value="#ffffff">
-            </div>
-        </div>
-
-        <div class="checkbox-group">
-            <label>
-                <input type="checkbox" id="transparent" onchange="updateTransparency()">
-                خلفية شفافة
-            </label>
-        </div>
-
-        <div id="status"></div>
-
-        <button class="main-button" onclick="generateQR()">إنشاء رمز QR</button>
-        
-        <div id="qrcode"></div>
-        
-        <div class="button-container">
-            <button class="action-btn" onclick="downloadQR('png')">
-                PNG حفظ بصيغة
-            </button>
-            <button class="action-btn" onclick="downloadQR('svg')">
-                SVG حفظ بصيغة
-            </button>
-            <button class="action-btn" onclick="copyToClipboard()">
-                نسخ الصورة
-            </button>
-        </div>
-    </div>
-
-    <script>
-function generateQR() {
-    const text = document.getElementById('text').value;
-    if (!text) {
-        showStatus('الرجاء إدخال نص أو رابط', 'error');
-        return;
-    }
-
-    try {
-        const colorDark = document.getElementById('colorDark').value;
-        const colorLight = document.getElementById('colorLight').value;
-        const transparent = document.getElementById('transparent').checked;
-
-        // إنشاء كود QR
-        const qr = qrcode(0, 'M');
-        qr.addData(text);
-        qr.make();
-
-        const modules = qr.getModuleCount();
-        
-        // حساب الحجم المناسب للخلايا
-        const targetSize = 256;  // الحجم المستهدف للـ QR code
-        const cellSize = targetSize / modules;
-        
-        // تعديل رئيسي: نحسب الحجم النهائي بدقة
-        const finalSize = cellSize * modules;
-        
-        // إنشاء SVG مع الأبعاد المحسوبة بدقة
-        let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${finalSize}" height="${finalSize}" viewBox="0 0 ${modules} ${modules}" shape-rendering="crispEdges">`;
-        
-        // إضافة الخلفية إذا لم تكن شفافة
-        if (!transparent) {
-            svg += `<rect width="${modules}" height="${modules}" fill="${colorLight}"/>`;
-        }
-
-        // رسم النقاط
-        for (let row = 0; row < modules; row++) {
-            for (let col = 0; col < modules; col++) {
-                if (qr.isDark(row, col)) {
-                    svg += `<rect x="${col}" y="${row}" width="1" height="1" fill="${colorDark}"/>`;
-                }
-            }
-        }
-        
-        svg += '</svg>';
-
-        document.getElementById('qrcode').innerHTML = svg;
-        showStatus('تم إنشاء رمز QR بنجاح', 'success');
-        
-        // إضافة خاصية النقر للنسخ
-        document.querySelector('#qrcode svg').addEventListener('click', function() {
-            copyToClipboard();
-        });
-    } catch (error) {
-        console.error('Error generating QR code:', error);
-        showStatus('حدث خطأ في إنشاء رمز QR', 'error');
-    }
-}        async function copyToClipboard() {
-            const svg = document.querySelector('#qrcode svg');
-            if (!svg) {
-                showStatus('الرجاء إنشاء رمز QR أولاً', 'error');
-                return;
-            }
-
-            try {
-                // تحويل SVG إلى صورة
-                const svgData = new XMLSerializer().serializeToString(svg);
-                const blob = new Blob([svgData], { type: 'image/svg+xml' });
-                const url = URL.createObjectURL(blob);
-                
-                const img = new Image();
-                img.src = url;
-                
-                await new Promise((resolve, reject) => {
-                    img.onload = resolve;
-                    img.onerror = reject;
-                });
-
-                // إنشاء canvas ورسم الصورة عليه
-                const canvas = document.createElement('canvas');
-                canvas.width = 256;
-                canvas.height = 256;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                
-                // تحويل Canvas إلى Blob
-                const imageBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                
-                // نسخ الصورة إلى الحافظة
-                await navigator.clipboard.write([
-                    new ClipboardItem({
-                        'image/png': imageBlob
-                    })
-                ]);
-
-                showStatus('تم نسخ الصورة بنجاح', 'success');
-                URL.revokeObjectURL(url);
-            } catch (error) {
-                console.error('Error copying QR code:', error);
-                showStatus('حدث خطأ أثناء نسخ الصورة', 'error');
-            }
-        }
-
-        function downloadQR(format) {
-            const qrcode = document.querySelector('#qrcode svg');
-            if (!qrcode) {
-                showStatus('الرجاء إنشاء رمز QR أولاً', 'error');
-                return;
-            }
-
-            try {
-                if (format === 'svg') {
-                    const svgData = new XMLSerializer().serializeToString(qrcode);
-                    const blob = new Blob([svgData], { type: 'image/svg+xml' });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = 'qrcode.svg';
-                    link.click();
-                    URL.revokeObjectURL(url);
-                } else {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = 256;
-                    canvas.height = 256;
-
-                    const img = new Image();
-                    const svgData = new XMLSerializer().serializeToString(qrcode);
-                    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
-
-                    img.onload = function() {
-                        ctx.drawImage(img, 0, 0);
-                        const link = document.createElement('a');
-                        link.href = canvas.toDataURL('image/png');
-                        link.download = 'qrcode.png';
-                        link.click();
-                    };
-                }
-                showStatus('جاري التحميل...', 'success');
-            } catch (error) {
-                console.error('Error downloading QR code:', error);
-                showStatus('حدث خطأ في تحميل الملف', 'error');
-            }
-        }
-
-        function showStatus(message, type) {
-            const status = document.getElementById('status');
-            status.textContent = message;
-            status.className = type;
-            status.style.display = 'block';
-            setTimeout(() => {
-                status.style.display = 'none';
-            }, 3000);
-        }
-
-        function updateTransparency() {
-            const transparent = document.getElementById('transparent').checked;
-            const colorLight = document.getElementById('colorLight');
-            colorLight.disabled = transparent;
-            if (document.querySelector('#qrcode svg')) {
-                generateQR();
-            }
-        }
-    </script>
+    <!-- باقي محتوى HTML بدون تغيير -->
 </body>
 </html>

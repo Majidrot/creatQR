@@ -440,33 +440,54 @@
                 generateQR();
             }
         }
+
+    </script>
         <div class="visitor-counter">
         عدد الزيارات: <span id="visit-count">...</span>
     </div>
 
     <!-- إضافة Firebase SDK -->
     <script type="module">
-        // Import the functions you need from the SDKs you need
+        // استيراد المكتبات المطلوبة
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAnalytics, incrementCount } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+        import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         
-        // تكوين Firebase - استبدل هذه القيم بقيمك الخاصة من لوحة تحكم Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyDt9wBhmkbeohtoFHuF_aJjQFJSi8GvcI0",
-  authDomain: "creatqr-a1f83.firebaseapp.com",
-  projectId: "creatqr-a1f83",
-  storageBucket: "creatqr-a1f83.appspot.com",
-  messagingSenderId: "464377813702",
-  appId: "1:464377813702:web:42c5787bd985732f4655c7",
-  measurementId: "G-KLPB366X60"
-};
+        // تكوين Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDt9wBhmkbeohtoFHuF_aJjQFJSi8GvcI0",
+            authDomain: "creatqr-a1f83.firebaseapp.com",
+            projectId: "creatqr-a1f83",
+            storageBucket: "creatqr-a1f83.appspot.com",
+            messagingSenderId: "464377813702",
+            appId: "1:464377813702:web:42c5787bd985732f4655c7",
+            measurementId: "G-KLPB366X60",
+            databaseURL: "https://creatqr-a1f83-default-rtdb.firebaseio.com" // أضف هذا السطر
+        };
 
         // تهيئة Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
+        const database = getDatabase(app);
 
-        // تسجيل الزيارة
-        analytics.logEvent('page_view');
+        // تحديث عداد الزيارات
+        const visitsRef = ref(database, 'visits');
+        
+        // قراءة العدد الحالي
+        get(visitsRef).then((snapshot) => {
+            let visits = snapshot.val() || 0;
+            visits++;
+            // تحديث العدد في قاعدة البيانات
+            set(visitsRef, visits);
+            // عرض العدد في الصفحة
+            document.getElementById('visit-count').textContent = visits;
+        });
+
+        // الاستماع للتغييرات
+        onValue(visitsRef, (snapshot) => {
+            const visits = snapshot.val() || 0;
+            document.getElementById('visit-count').textContent = visits;
+        });
     </script>
 </body>
 </html>

@@ -178,6 +178,23 @@
             color: #2e7d32;
             border: 1px solid #a5d6a7;
         }
+            .visitor-counter {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            margin: 20px 0;
+            font-family: Arial, sans-serif;
+            position: fixed;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+        }
+        #visit-count {
+            display: inline-block;
+            min-width: 30px;
+            font-weight: bold;
+        }
+
     </style>
 </head>
 <body>
@@ -423,6 +440,33 @@
                 generateQR();
             }
         }
+        <div class="visitor-counter">
+        عدد الزيارات: <span id="visit-count">...</span>
+    </div>
+
+    <!-- إضافة Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAnalytics, incrementCount } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+        
+        // تكوين Firebase - استبدل هذه القيم بقيمك الخاصة من لوحة تحكم Firebase
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID",
+            measurementId: "YOUR_MEASUREMENT_ID"
+        };
+
+        // تهيئة Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+
+        // تسجيل الزيارة
+        analytics.logEvent('page_view');
     </script>
 </body>
 </html>
